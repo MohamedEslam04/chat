@@ -93,17 +93,3 @@ Optionally, you can create a [Cloudflare AI Gateway](https://developers.cloudfla
 ## Renovate integration
 
 Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
-
-After reviewing the Nuxt UI documentation, I've found the following @nuxt/ui-pro components in your project:
-- UChatMessages
-- UChatPrompt
-- UChatPromptSubmit
-- UColorModeButton
-- UDashboardGroup
-- UDashboardNavbar
-- UDashboardPanel
-- UDashboardSearch
-- UDashboardSearchButton
-- UDashboardSidebar
-- UDashboardSidebarCollapse
-- UError (probable pro version)

@@ -11,5 +11,14 @@ const { model, models } = useLLM()
     :ui="{
       trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
     }"
-  />
+  >
+    <template #item-label="{ item }">
+      <UTooltip :text="item" arrow :content="{ side: 'left' }">
+        <span class="text-xs text-default-foreground truncate">
+          {{ item }}
+        </span>
+      </UTooltip>
+    </template>
+    <!-- <template #item-label></template> -->
+  </USelectMenu>
 </template>
