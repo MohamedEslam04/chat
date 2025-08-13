@@ -21,10 +21,6 @@ export default defineNuxtConfig({
     }
   },
 
-  future: {
-    compatibilityVersion: 4
-  },
-
   experimental: {
     viewTransition: true
   },
@@ -43,10 +39,6 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    optimizeDeps: {
-      include: ['debug']
-    },
-
     $server: {
       build: {
         rollupOptions: {

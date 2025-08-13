@@ -83,6 +83,7 @@ const quickChats = [
             @click="createChat(quickChat.label)"
           />
         </div>
+        <SecurityModelModalRequierments />
       </UContainer>
     </template>
   </UDashboardPanel>
