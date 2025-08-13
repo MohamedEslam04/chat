@@ -1,6 +1,3 @@
-import { streamText } from 'ai'
-import { createWorkersAI } from 'workers-ai-provider'
-
 defineRouteMeta({
   openAPI: {
     description: 'Chat with AI.',
@@ -12,18 +9,9 @@ export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
   const { id } = getRouterParams(event)
-  // TODO: Use readValidatedBody
   const { model, messages } = await readBody(event)
 
   const db = useDrizzle()
-  // Enable AI Gateway if defined in environment variables
-  const gateway = process.env.CLOUDFLARE_AI_GATEWAY_ID
-    ? {
-        id: process.env.CLOUDFLARE_AI_GATEWAY_ID,
-        cacheTtl: 60 * 60 * 24 // 24 hours
-      }
-    : undefined
-  const workersAI = createWorkersAI({ binding: hubAI(), gateway })
 
   const chat = await db.query.chats.findFirst({
     where: (chat, { eq }) => and(eq(chat.id, id as string), eq(chat.userId, session.user?.id || session.id)),
@@ -35,27 +23,28 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
   }
 
+  // Generate title if not exists
   if (!chat.title) {
-    // @ts-expect-error - response is not typed
-    const { response: title } = await hubAI().run('@cf/meta/llama-3.1-8b-instruct-fast', {
-      stream: false,
-      messages: [{
-        role: 'system',
-        content: `You are a title generator for a chat:
-        - Generate a short title based on the first user's message
-        - The title should be less than 30 characters long
-        - The title should be a summary of the user's message
-        - Do not use quotes (' or ") or colons (:) or any other punctuation
-        - Do not use markdown, just plain text`
-      }, {
-        role: 'user',
-        content: chat.messages[0]!.content
-      }]
-    }, {
-      gateway
-    })
-    setHeader(event, 'X-Chat-Title', title.replace(/:/g, '').split('\n')[0])
-    await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
+    try {
+      const titleResponse = await $fetch('https://dev-aimodel.atwdemo.com/get_answer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: {
+          message: `Generate a short title (less than 30 characters) for this chat based on the user's message: "${chat.messages[0]!.content}". Return only the title without quotes or punctuation.`
+        }
+      })
+      
+      const title = titleResponse.reply || 'Untitled'
+      setHeader(event, 'X-Chat-Title', title)
+      await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
+    } catch (error) {
+      console.error('Failed to generate title:', error)
+      const title = 'Untitled'
+      setHeader(event, 'X-Chat-Title', title)
+      await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
+    }
   }
 
   const lastMessage = messages[messages.length - 1]
@@ -67,17 +56,76 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return streamText({
-    model: workersAI(model),
-    maxTokens: 10000,
-    system: 'You are a helpful assistant that can answer questions and help.',
-    messages,
-    async onFinish(response) {
-      await db.insert(tables.messages).values({
-        chatId: chat.id,
-        role: 'assistant',
-        content: response.text
-      })
+  // Create a readable stream for the response
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        // Prepare the conversation context
+        const conversationContext = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n')
+        const userMessage = lastMessage.content
+        
+        // Call your AI API
+        const response = await $fetch('https://dev-aimodel.atwdemo.com/get_answer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: {
+            message: userMessage,
+            context: conversationContext
+          }
+        })
+
+        const aiReply = response.reply || 'I apologize, but I could not generate a response.'
+
+        // Save the AI response to database
+        await db.insert(tables.messages).values({
+          chatId: chat.id,
+          role: 'assistant',
+          content: aiReply
+        })
+
+        // Stream the response character by character for a typing effect
+        const encoder = new TextEncoder()
+        const words = aiReply.split(' ')
+        
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i] + (i < words.length - 1 ? ' ' : '')
+          const chunk = `0:"${word}"\n`
+          controller.enqueue(encoder.encode(chunk))
+          
+          // Add a small delay between words for streaming effect
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+
+        // Send final chunk to indicate completion
+        controller.enqueue(encoder.encode('d:\n'))
+        controller.close()
+
+      } catch (error) {
+        console.error('AI API Error:', error)
+        
+        // Save error message to database
+        const errorMessage = 'I apologize, but I encountered an error while processing your request.'
+        await db.insert(tables.messages).values({
+          chatId: chat.id,
+          role: 'assistant',
+          content: errorMessage
+        })
+
+        const encoder = new TextEncoder()
+        const chunk = `0:"${errorMessage}"\n`
+        controller.enqueue(encoder.encode(chunk))
+        controller.enqueue(encoder.encode('d:\n'))
+        controller.close()
+      }
     }
-  }).toDataStreamResponse()
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Transfer-Encoding': 'chunked'
+    }
+  })
 })

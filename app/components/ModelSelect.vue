@@ -15,10 +15,9 @@ const { model, models } = useLLM()
     <template #item-label="{ item }">
       <UTooltip :text="item" arrow :content="{ side: 'left' }">
         <span class="text-xs text-default-foreground truncate">
-          {{ item }}
+          {{ item === 'custom-ai-model' ? 'Custom AI Model' : item }}
         </span>
       </UTooltip>
     </template>
-    <!-- <template #item-label></template> -->
   </USelectMenu>
 </template>

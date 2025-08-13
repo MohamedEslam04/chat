@@ -22,24 +22,24 @@ function onSubmit() {
 
 const quickChats = [
   {
-    label: 'Why use Nuxt UI Pro?',
-    icon: 'i-logos-nuxt-icon'
+    label: 'Tell me about artificial intelligence',
+    icon: 'i-lucide-brain'
   },
   {
-    label: 'Help me create a Vue composable',
-    icon: 'i-logos-vue'
+    label: 'Explain machine learning concepts',
+    icon: 'i-lucide-cpu'
   },
   {
-    label: 'Tell me more about UnJS',
-    icon: 'i-logos-unjs'
+    label: 'How does natural language processing work?',
+    icon: 'i-lucide-message-square'
   },
   {
-    label: 'Why should I consider VueUse?',
-    icon: 'i-logos-vueuse'
+    label: 'What are neural networks?',
+    icon: 'i-lucide-network'
   },
   {
-    label: 'Tailwind CSS best practices',
-    icon: 'i-logos-tailwindcss-icon'
+    label: 'Explain deep learning algorithms',
+    icon: 'i-lucide-layers'
   }
 ]
 </script>
