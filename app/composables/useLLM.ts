@@ -4,18 +4,18 @@ export function useLLM() {
     default: () => ({ models: [] })
   })
 
-  const models = computed(() => 
+  const models = computed(() =>
     modelsData.value?.models?.map(model => model.id) || []
   )
 
-  const modelNames = computed(() => 
+  const modelNames = computed(() =>
     modelsData.value?.models?.reduce((acc, model) => {
       acc[model.id] = model.name
       return acc
     }, {} as Record<string, string>) || {}
   )
 
-  const model = useCookie<string>('llm-model', { 
+  const model = useCookie<string>('llm-model', {
     default: () => models.value[0] || 'custom'
   })
 

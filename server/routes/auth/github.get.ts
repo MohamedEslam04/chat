@@ -1,6 +1,8 @@
+// import { tables, eq, and } from '~/server/utils/drizzle'
+
 export default defineOAuthGitHubEventHandler({
   async onSuccess(event, { user: ghUser }) {
-    const db = useDrizzle()
+    const db = await useDrizzle()
     const session = await getUserSession(event)
 
     let user = await db.query.users.findFirst({

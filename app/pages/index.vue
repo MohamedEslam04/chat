@@ -56,13 +56,8 @@ const quickChats = [
           How can I help you today?
         </h1>
 
-        <UChatPrompt
-          v-model="input"
-          :status="loading ? 'streaming' : 'ready'"
-          class="[view-transition-name:chat-prompt]"
-          variant="subtle"
-          @submit="onSubmit"
-        >
+        <UChatPrompt v-model="input" :status="loading ? 'streaming' : 'ready'"
+          class="[view-transition-name:chat-prompt]" variant="subtle" @submit="onSubmit">
           <UChatPromptSubmit color="neutral" />
 
           <template #footer>
@@ -71,19 +66,10 @@ const quickChats = [
         </UChatPrompt>
 
         <div class="flex flex-wrap gap-2">
-          <UButton
-            v-for="quickChat in quickChats"
-            :key="quickChat.label"
-            :icon="quickChat.icon"
-            :label="quickChat.label"
-            size="sm"
-            color="neutral"
-            variant="outline"
-            class="rounded-full"
-            @click="createChat(quickChat.label)"
-          />
+          <UButton v-for="quickChat in quickChats" :key="quickChat.label" :icon="quickChat.icon"
+            :label="quickChat.label" size="sm" color="neutral" variant="outline" class="rounded-full"
+            @click="createChat(quickChat.label)" />
         </div>
-        <SecurityModelModalRequierments />
       </UContainer>
     </template>
   </UDashboardPanel>

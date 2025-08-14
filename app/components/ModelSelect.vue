@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { model, models, modelNames } = useLLM()
 
-const modelOptions = computed(() => 
+const modelOptions = computed(() =>
   models.value.map(modelId => ({
     value: modelId,
     label: modelNames.value[modelId] || modelId

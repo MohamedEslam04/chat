@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
+  const db = await useDrizzle()
 
-  return (await useDrizzle().select().from(tables.chats).where(eq(tables.chats.userId, session.user?.id || session.id))).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  return (await db.select().from(tables.chats).where(eq(tables.chats.userId, session.user?.id || session.id))).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 })

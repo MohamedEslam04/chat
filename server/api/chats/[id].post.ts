@@ -1,3 +1,6 @@
+// import { getEnabledAIModels, callAIModel } from '../../utils/aiModels'
+// import { tables, eq, and } from '../../utils/drizzle'
+
 defineRouteMeta({
   openAPI: {
     description: 'Chat with AI.',
@@ -11,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event)
   const { model, messages } = await readBody(event)
 
-  const db = useDrizzle()
+  const db = await useDrizzle()
 
   const chat = await db.query.chats.findFirst({
     where: (chat, { eq }) => and(eq(chat.id, id as string), eq(chat.userId, session.user?.id || session.id)),
@@ -28,7 +31,7 @@ export default defineEventHandler(async (event) => {
     try {
       const enabledModels = getEnabledAIModels()
       const titleModel = enabledModels[0] // Use first available model for title generation
-      
+
       if (titleModel) {
         const titleResponse = await callAIModel(
           titleModel.id,
@@ -93,13 +96,13 @@ export default defineEventHandler(async (event) => {
           // Add a small delay between words for streaming effect
           await new Promise(resolve => setTimeout(resolve, 50))
         }
-        
+
         // Send final chunk to indicate completion
         controller.enqueue(encoder.encode('d:\n'))
         controller.close()
       } catch (error) {
         console.error('AI API Error:', error)
-        
+
         // Save error message to database
         const errorMessage = `I apologize, but I encountered an error while processing your request: ${error instanceof Error ? error.message : 'Unknown error'}`
         await db.insert(tables.messages).values({
@@ -107,7 +110,7 @@ export default defineEventHandler(async (event) => {
           role: 'assistant',
           content: errorMessage
         })
-        
+
         const encoder = new TextEncoder()
         const chunk = `0:"${errorMessage}"\n`
         controller.enqueue(encoder.encode(chunk))

@@ -5,7 +5,7 @@ interface AIModelConfig {
   apiKey?: string
   baseUrl: string
   endpoint?: string
-  method: string
+  method: 'get' | 'GET' | 'head' | 'HEAD' | 'post' | 'POST' | 'put' | 'PUT' | 'delete' | 'DELETE' | 'patch' | 'PATCH' | 'connect' | 'CONNECT' | 'options' | 'OPTIONS' | 'trace' | 'TRACE'
   model?: string
 }
 
@@ -100,7 +100,7 @@ export async function callAIModel(modelId: string, message: string, conversation
   try {
     const url = `${model.baseUrl}${model.endpoint}`
     let requestBody: any
-    let headers: Record<string, string> = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     }
 
@@ -202,7 +202,7 @@ export async function callAIModel(modelId: string, message: string, conversation
         break
 
       case 'custom':
-        content = (response as any)?.reply || 'No response from Custom AI'
+        content = (response as any)?.response || 'No response from Custom AI'
         break
 
       case 'custom2':

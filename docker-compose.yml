@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  chat-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/.data/sqlite.db
+      - NUXT_AI_OPENAI_ENABLED=false
+      - NUXT_AI_CLAUDE_ENABLED=false
+      - NUXT_AI_GEMINI_ENABLED=false
+      - NUXT_AI_CUSTOM_ENABLED=true
+      - NUXT_AI_CUSTOM_NAME=Custom AI Model
+      - NUXT_AI_CUSTOM_API_KEY=${CUSTOM_AI_API_KEY:-}
+      - NUXT_AI_CUSTOM_BASE_URL=${CUSTOM_AI_BASE_URL:-https://dev-aimodel.atwdemo.com}
+      - NUXT_AI_CUSTOM_ENDPOINT=${CUSTOM_AI_ENDPOINT:-/get_answer}
+      - NUXT_AI_CUSTOM_METHOD=${CUSTOM_AI_CUSTOM_METHOD:-POST}
+    volumes:
+      - chat-data:/app/.data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/ai-models', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - chat-network
+
+  # Optional: Add a reverse proxy with nginx
+  nginx:
+    image: nginx:alpine
+    container_name: chat-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - chat-app
+    restart: unless-stopped
+    networks:
+      - chat-network
+    profiles:
+      - proxy
+
+volumes:
+  chat-data:
+    driver: local
+
+networks:
+  chat-network:
+    driver: bridge

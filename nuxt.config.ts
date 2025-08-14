@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@eslamdevui/ui',
     '@nuxtjs/mdc',
-    '@nuxthub/core',
     'nuxt-auth-utils'
   ],
 
@@ -14,7 +13,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  mdc: {
+    highlight: {
+      // noApiRoute: true
+      shikiEngine: 'javascript'
+    }
+  },
+
   runtimeConfig: {
+    dbPath: process.env.DB_PATH || '.data/sqlite.db',
     ai: {
       openai: {
         enabled: process.env.NUXT_AI_OPENAI_ENABLED === 'true',
@@ -53,13 +60,6 @@ export default defineNuxtConfig({
     }
   },
 
-  mdc: {
-    highlight: {
-      // noApiRoute: true
-      shikiEngine: 'javascript'
-    }
-  },
-
   experimental: {
     viewTransition: true
   },
@@ -67,14 +67,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-11',
 
   nitro: {
+    preset: 'node-server',
     experimental: {
       openAPI: true
     }
-  },
-
-  hub: {
-    ai: true,
-    database: true
   },
 
   vite: {

@@ -1,30 +1,14 @@
 <template>
   <!-- Modal Overlay -->
-  <UDrawer
-    v-model:open="isFirstOpen"
-    should-scale-background
-    set-background-color-on-scale
-    inset
-    side="top"
-    :ui="{ footer: 'justify-end' }"
-  >
+  <UDrawer v-model:open="isFirstOpen" should-scale-background set-background-color-on-scale inset side="top"
+    :ui="{ footer: 'justify-end' }">
     <UButton label="Open" color="neutral" variant="subtle" />
     <template #body>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-        <UDrawer
-          v-model:open="isSecondOpen"
-          nested
-          inset
-          :ui="{ content: 'h-full', overlay: 'bg-inverted/30' }"
-        >
-          <UPageCard
-            title="Tailwind CSS"
+        <UDrawer v-model:open="isSecondOpen" nested inset :ui="{ content: 'h-full', overlay: 'bg-inverted/30' }">
+          <UPageCard title="Tailwind CSS"
             description="Nuxt UI v3 integrates with latest Tailwind CSS v4, bringing significant improvements."
-            icon="i-simple-icons-tailwindcss"
-            orientation="horizontal"
-            spotlight
-            spotlight-color="primary"
-          />
+            icon="i-simple-icons-tailwindcss" orientation="horizontal" spotlight spotlight-color="primary" />
           <!-- <img src="/tailwindcss-v4.svg" alt="Tailwind CSS" class="w-full" /> -->
           <!-- </UPageCard> -->
           <template #body>
@@ -43,11 +27,8 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Choose an option
                   </label>
-                  <URadioGroup
-                    v-model="selectedOption"
-                    :options="optionChoices"
-                    :ui-radio="{ wrapper: 'flex items-center h-4 w-4' }"
-                  />
+                  <URadioGroup v-model="selectedOption" :options="optionChoices"
+                    :ui-radio="{ wrapper: 'flex items-center h-4 w-4' }" />
                 </div>
 
                 <!-- Free Models Form -->
@@ -57,13 +38,8 @@
                       Select Models
                     </label>
                     <div class="grid grid-cols-2 gap-2">
-                      <UCheckbox
-                        v-for="model in freeModels"
-                        :key="model.value"
-                        v-model="selectedModels"
-                        :value="model.value"
-                        :label="model.label"
-                      />
+                      <UCheckbox v-for="model in freeModels" :key="model.value" v-model="selectedModels"
+                        :value="model.value" :label="model.label" />
                     </div>
                     <p v-if="modelError" class="text-sm text-red-500 mt-1">
                       Please select at least one model
@@ -71,22 +47,16 @@
                   </div>
 
                   <UFormField label="Target Domain" required>
-                    <UInput
-                      v-model="freeFormData.targetDomain"
-                      placeholder="Enter target domain"
-                      :error="domainError"
-                    />
+                    <UInput v-model="freeFormData.targetDomain" placeholder="Enter target domain"
+                      :error="domainError" />
                   </UFormField>
                 </div>
 
                 <!-- OpenAI Form -->
                 <div v-if="selectedOption === 'openai'" class="space-y-4">
                   <UFormField label="Target Domain" required>
-                    <UInput
-                      v-model="openAIFormData.targetDomain"
-                      placeholder="Enter target domain"
-                      :error="domainError"
-                    />
+                    <UInput v-model="openAIFormData.targetDomain" placeholder="Enter target domain"
+                      :error="domainError" />
                   </UFormField>
 
                   <UFormField label="Task Name" required>
@@ -94,12 +64,8 @@
                   </UFormField>
 
                   <UFormField label="Description" required>
-                    <UTextarea
-                      v-model="openAIFormData.description"
-                      placeholder="Enter description"
-                      :rows="3"
-                      :error="descriptionError"
-                    />
+                    <UTextarea v-model="openAIFormData.description" placeholder="Enter description" :rows="3"
+                      :error="descriptionError" />
                   </UFormField>
                 </div>
               </div>
@@ -109,12 +75,7 @@
                   <UButton color="gray" variant="soft" @click="isOpen = false">
                     Cancel
                   </UButton>
-                  <UButton
-                    color="primary"
-                    :loading="isSubmitting"
-                    :disabled="!selectedOption"
-                    @click="handleSubmit"
-                  >
+                  <UButton color="primary" :loading="isSubmitting" :disabled="!selectedOption" @click="handleSubmit">
                     Submit
                   </UButton>
                 </div>
@@ -122,20 +83,10 @@
             </UCard>
           </template>
         </UDrawer>
-        <UDrawer
-          v-model:open="isSecondOpen"
-          nested
-          inset
-          :ui="{ content: 'h-full', overlay: 'bg-inverted/30' }"
-        >
-          <UPageCard
-            title="Tailwind CSS"
+        <UDrawer v-model:open="isSecondOpen" nested inset :ui="{ content: 'h-full', overlay: 'bg-inverted/30' }">
+          <UPageCard title="Tailwind CSS"
             description="Nuxt UI v3 integrates with latest Tailwind CSS v4, bringing significant improvements."
-            icon="i-simple-icons-tailwindcss"
-            orientation="horizontal"
-            spotlight
-            spotlight-color="primary"
-          />
+            icon="i-simple-icons-tailwindcss" orientation="horizontal" spotlight spotlight-color="primary" />
           <template #body>
             <UCard class="divide-y-0">
               <template #header>
@@ -152,11 +103,8 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Choose an option
                   </label>
-                  <URadioGroup
-                    v-model="selectedOption"
-                    :options="optionChoices"
-                    :ui-radio="{ wrapper: 'flex items-center h-4 w-4' }"
-                  />
+                  <URadioGroup v-model="selectedOption" :options="optionChoices"
+                    :ui-radio="{ wrapper: 'flex items-center h-4 w-4' }" />
                 </div>
 
                 <!-- Free Models Form -->
@@ -166,13 +114,8 @@
                       Select Models
                     </label>
                     <div class="grid grid-cols-2 gap-2">
-                      <UCheckbox
-                        v-for="model in freeModels"
-                        :key="model.value"
-                        v-model="selectedModels"
-                        :value="model.value"
-                        :label="model.label"
-                      />
+                      <UCheckbox v-for="model in freeModels" :key="model.value" v-model="selectedModels"
+                        :value="model.value" :label="model.label" />
                     </div>
                     <p v-if="modelError" class="text-sm text-red-500 mt-1">
                       Please select at least one model
@@ -180,22 +123,16 @@
                   </div>
 
                   <UFormField label="Target Domain" required>
-                    <UInput
-                      v-model="freeFormData.targetDomain"
-                      placeholder="Enter target domain"
-                      :error="domainError"
-                    />
+                    <UInput v-model="freeFormData.targetDomain" placeholder="Enter target domain"
+                      :error="domainError" />
                   </UFormField>
                 </div>
 
                 <!-- OpenAI Form -->
                 <div v-if="selectedOption === 'openai'" class="space-y-4">
                   <UFormField label="Target Domain" required>
-                    <UInput
-                      v-model="openAIFormData.targetDomain"
-                      placeholder="Enter target domain"
-                      :error="domainError"
-                    />
+                    <UInput v-model="openAIFormData.targetDomain" placeholder="Enter target domain"
+                      :error="domainError" />
                   </UFormField>
 
                   <UFormField label="Task Name" required>
@@ -203,12 +140,8 @@
                   </UFormField>
 
                   <UFormField label="Description" required>
-                    <UTextarea
-                      v-model="openAIFormData.description"
-                      placeholder="Enter description"
-                      :rows="3"
-                      :error="descriptionError"
-                    />
+                    <UTextarea v-model="openAIFormData.description" placeholder="Enter description" :rows="3"
+                      :error="descriptionError" />
                   </UFormField>
                 </div>
               </div>
@@ -218,12 +151,7 @@
                   <UButton color="gray" variant="soft" @click="isOpen = false">
                     Cancel
                   </UButton>
-                  <UButton
-                    color="primary"
-                    :loading="isSubmitting"
-                    :disabled="!selectedOption"
-                    @click="handleSubmit"
-                  >
+                  <UButton color="primary" :loading="isSubmitting" :disabled="!selectedOption" @click="handleSubmit">
                     Submit
                   </UButton>
                 </div>
