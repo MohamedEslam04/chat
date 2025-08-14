@@ -1,11 +1,20 @@
 <script setup lang="ts">
-const { model, models } = useLLM()
+const { model, models, modelNames } = useLLM()
+
+const modelOptions = computed(() => 
+  models.value.map(modelId => ({
+    value: modelId,
+    label: modelNames.value[modelId] || modelId
+  }))
+)
 </script>
 
 <template>
   <USelectMenu
     v-model="model"
-    :items="models"
+    :items="modelOptions"
+    value-attribute="value"
+    option-attribute="label"
     variant="ghost"
     class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
     :ui="{
@@ -13,9 +22,9 @@ const { model, models } = useLLM()
     }"
   >
     <template #item-label="{ item }">
-      <UTooltip :text="item" arrow :content="{ side: 'left' }">
+      <UTooltip :text="item.label" arrow :content="{ side: 'left' }">
         <span class="text-xs text-default-foreground truncate">
-          {{ item === 'custom-ai-model' ? 'Custom AI Model' : item }}
+          {{ item.label }}
         </span>
       </UTooltip>
     </template>

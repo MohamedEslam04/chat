@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
   const { id } = getRouterParams(event)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { model, messages } = await readBody(event)
 
   const db = useDrizzle()
@@ -27,22 +26,19 @@ export default defineEventHandler(async (event) => {
   // Generate title if not exists
   if (!chat.title) {
     try {
-      const titleResponse = await $fetch('https://dev-aimodel.atwdemo.com/get_answer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: {
-          message: `Generate a short title (less than 30 characters) for this chat based on the user's message: "${chat.messages[0]!.content}". Return only the title without quotes or punctuation.`
-        }
-      })
+      const enabledModels = getEnabledAIModels()
+      const titleModel = enabledModels[0] // Use first available model for title generation
+      
+      if (titleModel) {
+        const titleResponse = await callAIModel(
+          titleModel.id,
+          `Generate a short title (less than 30 characters) for this chat based on the user's message: "${chat.messages[0]!.content}". Return only the title without quotes or punctuation.`
+        )
 
-      // titleResponse is unknown, so type guard
-      const title = typeof titleResponse === 'object' && titleResponse !== null && 'reply' in titleResponse
-        ? (titleResponse as { reply?: string }).reply || 'Untitled'
-        : 'Untitled'
-      setHeader(event, 'X-Chat-Title', title)
-      await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
+        const title = titleResponse.content || 'Untitled'
+        setHeader(event, 'X-Chat-Title', title)
+        await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
+      }
     } catch (error) {
       console.error('Failed to generate title:', error)
       const title = 'Untitled'
@@ -64,36 +60,20 @@ export default defineEventHandler(async (event) => {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Prepare the conversation context
-        // const conversationContext = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n')
-        const userMessage = lastMessage.content
+        // Prepare conversation history
+        const conversationHistory = messages.slice(0, -1).map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        }))
 
-        // Call your AI API
-        const response = await $fetch('https://ml-test.atwdemo.com/smart_chef', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: {
-            question: userMessage
-            // context: conversationContext
-          }
-        })
+        // Call the selected AI model
+        const response = await callAIModel(model, lastMessage.content, conversationHistory)
 
-        // Defensive parsing for the expected API response structure
-        let aiReply = 'I apologize, but I could not generate a response.'
-        if (
-          typeof response === 'object' &&
-          response !== null &&
-          'meals' in response &&
-          Array.isArray((response as any).meals) &&
-          (response as any).meals.length > 0 &&
-          typeof (response as any).meals[0] === 'object' &&
-          (response as any).meals[0] !== null &&
-          'calorie_per_component' in (response as any).meals[0]
-        ) {
-          aiReply = (response as any).meals[0].calorie_per_component || aiReply
+        if (response.error) {
+          throw new Error(response.error)
         }
+
+        const aiReply = response.content || 'I apologize, but I could not generate a response.'
 
         // Save the AI response to database
         await db.insert(tables.messages).values({
@@ -113,18 +93,21 @@ export default defineEventHandler(async (event) => {
           // Add a small delay between words for streaming effect
           await new Promise(resolve => setTimeout(resolve, 50))
         }
+        
         // Send final chunk to indicate completion
         controller.enqueue(encoder.encode('d:\n'))
         controller.close()
       } catch (error) {
         console.error('AI API Error:', error)
+        
         // Save error message to database
-        const errorMessage = 'I apologize, but I encountered an error while processing your request.'
+        const errorMessage = `I apologize, but I encountered an error while processing your request: ${error instanceof Error ? error.message : 'Unknown error'}`
         await db.insert(tables.messages).values({
           chatId: chat.id,
           role: 'assistant',
           content: errorMessage
         })
+        
         const encoder = new TextEncoder()
         const chunk = `0:"${errorMessage}"\n`
         controller.enqueue(encoder.encode(chunk))
