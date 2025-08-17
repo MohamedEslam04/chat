@@ -7,7 +7,7 @@ export const tables = schema
 
 export function useDrizzle() {
   const { dbPath } = useRuntimeConfig()
-  const sqlitePath = dbPath || process.env.DB_PATH || '.data/sqlite.db'
+  const sqlitePath = dbPath || process.env.DB_PATH || 'sqlite.db'
 
   // Create libsql client - works with both local files and remote databases
   const client = createClient({

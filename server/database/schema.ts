@@ -8,8 +8,9 @@ export const users = sqliteTable('users', {
   name: text().notNull(),
   avatar: text().notNull(),
   username: text().notNull(),
-  provider: text({ enum: ['github'] }).notNull(),
-  providerId: integer().notNull(),
+  password: text(),
+  provider: text({ enum: ['github', 'local'] }).notNull(),
+  providerId: integer(),
   createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`)
 }, t => [
   unique().on(t.provider, t.providerId)

@@ -12,7 +12,9 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "nuxt typecheck",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@ai-sdk/vue": "^1.2.12",
@@ -23,17 +25,21 @@
     "@libsql/client": "^0.15.11",
     "@nuxtjs/mdc": "^0.17.1",
     "ai": "^4.3.19",
+    "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
-    "drizzle-orm": "^0.44.3",
+    "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.44.4",
     "nuxt": "^4.0.0",
     "nuxt-auth-utils": "^0.5.20",
     "shiki-stream": "^0.1.2"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.5.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^22.16.4",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.31.0",
+    "tsx": "^4.20.4",
     "typescript": "^5.8.3",
     "vue-tsc": "^3.0.1"
   },

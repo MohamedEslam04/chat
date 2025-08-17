@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DB_PATH=/app/.data/sqlite.db
+      - DB_PATH=/app/sqlite.db
       - NUXT_AI_OPENAI_ENABLED=false
       - NUXT_AI_CLAUDE_ENABLED=false
       - NUXT_AI_GEMINI_ENABLED=false

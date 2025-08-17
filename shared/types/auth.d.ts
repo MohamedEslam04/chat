@@ -6,9 +6,10 @@ declare module '#auth-utils' {
     email: string
     avatar: string
     username: string
-    provider: 'github'
-    providerId: number
+    password?: string
+    provider: 'github' | 'local'
+    providerId?: number
   }
 }
 
-export {}
+export { }

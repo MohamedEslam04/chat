@@ -21,41 +21,28 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    dbPath: process.env.DB_PATH || '.data/sqlite.db',
+    dbPath: process.env.DB_PATH || 'sqlite.db',
+    dbHost: process.env.DB_HOST || 'localhost',
+    dbUser: process.env.DB_USER || 'root',
+    dbPassword: process.env.DB_PASSWORD || 'mypassword',
+    dbName: process.env.DB_NAME || 'mysql',
+    dbPort: process.env.DB_PORT || '3306',
     ai: {
-      openai: {
-        enabled: process.env.NUXT_AI_OPENAI_ENABLED === 'true',
-        apiKey: process.env.NUXT_AI_OPENAI_API_KEY,
-        baseUrl: process.env.NUXT_AI_OPENAI_BASE_URL || 'https://api.openai.com/v1',
-        model: process.env.NUXT_AI_OPENAI_MODEL || 'gpt-3.5-turbo'
+      cancerChat: {
+        enabled: process.env.NUXT_AI_CANCER_CHAT_ENABLED === 'true',
+        name: process.env.NUXT_AI_CANCER_CHAT_NAME || 'Custom AI Model',
+        apiKey: process.env.NUXT_AI_CANCER_CHAT_API_KEY,
+        baseUrl: process.env.NUXT_AI_CANCER_CHAT_BASE_URL || 'https://dev-aimodel.atwdemo.com',
+        endpoint: process.env.NUXT_AI_CANCER_CHAT_ENDPOINT || '/get_answer',
+        method: process.env.NUXT_AI_CANCER_CHAT_METHOD || 'POST'
       },
-      claude: {
-        enabled: process.env.NUXT_AI_CLAUDE_ENABLED === 'true',
-        apiKey: process.env.NUXT_AI_CLAUDE_API_KEY,
-        baseUrl: process.env.NUXT_AI_CLAUDE_BASE_URL || 'https://api.anthropic.com/v1',
-        model: process.env.NUXT_AI_CLAUDE_MODEL || 'claude-3-sonnet-20240229'
-      },
-      gemini: {
-        enabled: process.env.NUXT_AI_GEMINI_ENABLED === 'true',
-        apiKey: process.env.NUXT_AI_GEMINI_API_KEY,
-        baseUrl: process.env.NUXT_AI_GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta',
-        model: process.env.NUXT_AI_GEMINI_MODEL || 'gemini-pro'
-      },
-      custom: {
-        enabled: process.env.NUXT_AI_CUSTOM_ENABLED === 'true',
-        name: process.env.NUXT_AI_CUSTOM_NAME || 'Custom AI Model',
-        apiKey: process.env.NUXT_AI_CUSTOM_API_KEY,
-        baseUrl: process.env.NUXT_AI_CUSTOM_BASE_URL || 'https://dev-aimodel.atwdemo.com',
-        endpoint: process.env.NUXT_AI_CUSTOM_ENDPOINT || '/get_answer',
-        method: process.env.NUXT_AI_CUSTOM_METHOD || 'POST'
-      },
-      custom2: {
-        enabled: process.env.NUXT_AI_CUSTOM2_ENABLED === 'true',
-        name: process.env.NUXT_AI_CUSTOM2_NAME || 'Custom AI Model 2',
-        apiKey: process.env.NUXT_AI_CUSTOM2_API_KEY,
-        baseUrl: process.env.NUXT_AI_CUSTOM2_BASE_URL || 'https://ml-test.atwdemo.com',
-        endpoint: process.env.NUXT_AI_CUSTOM2_ENDPOINT || '/smart_chef',
-        method: process.env.NUXT_AI_CUSTOM2_METHOD || 'POST'
+      aiPentest: {
+        enabled: process.env.NUXT_AI_AI_PENTEST_ENABLED === 'true',
+        name: process.env.NUXT_AI_AI_PENTEST_NAME || 'Custom AI Model 2',
+        apiKey: process.env.NUXT_AI_AI_PENTEST_API_KEY,
+        baseUrl: process.env.NUXT_AI_AI_PENTEST_BASE_URL || 'https://ml-test.atwdemo.com',
+        endpoint: process.env.NUXT_AI_AI_PENTEST_ENDPOINT || '/smart_chef',
+        method: process.env.NUXT_AI_AI_PENTEST_METHOD || 'POST'
       }
     }
   },

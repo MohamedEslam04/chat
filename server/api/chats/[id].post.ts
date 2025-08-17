@@ -1,13 +1,3 @@
-// import { getEnabledAIModels, callAIModel } from '../../utils/aiModels'
-// import { tables, eq, and } from '../../utils/drizzle'
-
-defineRouteMeta({
-  openAPI: {
-    description: 'Chat with AI.',
-    tags: ['ai']
-  }
-})
-
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
@@ -38,13 +28,21 @@ export default defineEventHandler(async (event) => {
           `Generate a short title (less than 30 characters) for this chat based on the user's message: "${chat.messages[0]!.content}". Return only the title without quotes or punctuation.`
         )
 
-        const title = titleResponse.content || 'Untitled'
+        // Sanitize the title for use in HTTP header (remove invalid characters)
+        let title = titleResponse.content || 'Untitled'
+        // Remove CR, LF, and other invalid header characters
+        title = title.replace(/[\r\n]+/g, ' ').replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim()
+        // Optionally, further restrict to ASCII and remove problematic symbols
+        title = title.replace(/["(),\/:;<=>?@[\]{}]/g, '').trim()
+        // Limit length for header safety
+        if (title.length > 60) title = title.slice(0, 60)
+
         setHeader(event, 'X-Chat-Title', title)
         await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
       }
     } catch (error) {
       console.error('Failed to generate title:', error)
-      const title = 'Untitled'
+      let title = 'Untitled'
       setHeader(event, 'X-Chat-Title', title)
       await db.update(tables.chats).set({ title }).where(eq(tables.chats.id, id as string))
     }
@@ -122,7 +120,7 @@ export default defineEventHandler(async (event) => {
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Type': 'application/json; text/plain; charset=utf-8',
       'Transfer-Encoding': 'chunked'
     }
   })

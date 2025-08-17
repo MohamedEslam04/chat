@@ -18,71 +18,29 @@ export function getEnabledAIModels(): AIModelConfig[] {
   const config = useRuntimeConfig()
   const models: AIModelConfig[] = []
 
-  // OpenAI
-  if (config.ai?.openai?.enabled) {
+  // Cancer Chat
+  if (config.ai?.cancerChat?.enabled) {
     models.push({
-      id: 'openai',
-      name: 'OpenAI GPT',
+      id: 'cancerChat',
+      name: config.ai.cancerChat.name || 'Cancer Chat',
       enabled: true,
-      apiKey: config.ai.openai.apiKey,
-      baseUrl: config.ai.openai.baseUrl,
-      endpoint: '/chat/completions',
-      method: 'POST',
-      model: config.ai.openai.model
+      apiKey: config.ai.cancerChat.apiKey,
+      baseUrl: config.ai.cancerChat.baseUrl,
+      endpoint: config.ai.cancerChat.endpoint,
+      method: config.ai.cancerChat.method || 'POST'
     })
   }
 
-  // Claude
-  if (config.ai?.claude?.enabled) {
+  // AI Pentest
+  if (config.ai?.aiPentest?.enabled) {
     models.push({
-      id: 'claude',
-      name: 'Claude',
+      id: 'aiPentest',
+      name: config.ai.aiPentest.name || 'AI Pentest',
       enabled: true,
-      apiKey: config.ai.claude.apiKey,
-      baseUrl: config.ai.claude.baseUrl,
-      endpoint: '/messages',
-      method: 'POST',
-      model: config.ai.claude.model
-    })
-  }
-
-  // Gemini
-  if (config.ai?.gemini?.enabled) {
-    models.push({
-      id: 'gemini',
-      name: 'Gemini',
-      enabled: true,
-      apiKey: config.ai.gemini.apiKey,
-      baseUrl: config.ai.gemini.baseUrl,
-      endpoint: `/models/${config.ai.gemini.model}:generateContent`,
-      method: 'POST',
-      model: config.ai.gemini.model
-    })
-  }
-
-  // Custom Model 1
-  if (config.ai?.custom?.enabled) {
-    models.push({
-      id: 'custom',
-      name: config.ai.custom.name || 'Custom AI Model',
-      enabled: true,
-      apiKey: config.ai.custom.apiKey,
-      baseUrl: config.ai.custom.baseUrl,
-      endpoint: config.ai.custom.endpoint,
-      method: config.ai.custom.method || 'POST'
-    })
-  }
-
-  // Custom Model 2
-  if (config.ai?.custom2?.enabled) {
-    models.push({
-      id: 'custom2',
-      name: config.ai.custom2.name || 'Custom AI Model 2',
-      enabled: true,
-      apiKey: config.ai.custom2.apiKey,
-      baseUrl: config.ai.custom2.baseUrl,
-      endpoint: config.ai.custom2.endpoint,
-      method: config.ai.custom2.method || 'POST'
+      apiKey: config.ai.aiPentest.apiKey,
+      baseUrl: config.ai.aiPentest.baseUrl,
+      endpoint: config.ai.aiPentest.endpoint,
+      method: config.ai.aiPentest.method || 'POST'
     })
   }
 
@@ -125,52 +83,13 @@ export async function callAIModel(modelId: string, message: string, conversation
 
     // Prepare request body based on model type
     switch (modelId) {
-      case 'openai':
-        requestBody = {
-          model: model.model,
-          messages: [
-            ...conversationHistory,
-            { role: 'user', content: message }
-          ],
-          stream: false
-        }
-        break
-
-      case 'claude':
-        requestBody = {
-          model: model.model,
-          max_tokens: 1000,
-          messages: [
-            ...conversationHistory,
-            { role: 'user', content: message }
-          ]
-        }
-        break
-
-      case 'gemini':
-        requestBody = {
-          contents: [{
-            parts: [{ text: message }]
-          }]
-        }
-        // Add API key to URL for Gemini
-        const geminiUrl = `${url}?key=${model.apiKey}`
-        const geminiResponse = await $fetch(geminiUrl, {
-          method: model.method,
-          headers,
-          body: requestBody
-        })
-        return {
-          content: (geminiResponse as any)?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from Gemini'
-        }
-
-      case 'custom':
+      case 'cancerChat':
         requestBody = {
           message: message
         }
         break
 
-      case 'custom2':
+      case 'aiPentest':
         requestBody = {
           question: message
         }
@@ -193,19 +112,11 @@ export async function callAIModel(modelId: string, message: string, conversation
     // Parse response based on model type
     let content = ''
     switch (modelId) {
-      case 'openai':
-        content = (response as any)?.choices?.[0]?.message?.content || 'No response from OpenAI'
+      case 'cancerChat':
+        content = (response as any)?.reply || 'No response from cancerChat AI'
         break
 
-      case 'claude':
-        content = (response as any)?.content?.[0]?.text || 'No response from Claude'
-        break
-
-      case 'custom':
-        content = (response as any)?.response || 'No response from Custom AI'
-        break
-
-      case 'custom2':
+      case 'aiPentest':
         // Handle the smart chef response format
         if (typeof response === 'object' && response !== null && 'meals' in response) {
           const meals = (response as any).meals

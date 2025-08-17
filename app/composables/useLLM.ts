@@ -16,13 +16,13 @@ export function useLLM() {
   )
 
   const model = useCookie<string>('llm-model', {
-    default: () => models.value[0] || 'custom'
+    default: () => models.value[0] ?? ''
   })
 
   // Update model if current selection is not available
   watch(models, (newModels) => {
     if (newModels.length > 0 && !newModels.includes(model.value)) {
-      model.value = newModels[0]
+      model.value = newModels[0] ?? ''
     }
   }, { immediate: true })
 

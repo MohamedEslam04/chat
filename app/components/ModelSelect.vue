@@ -10,17 +10,10 @@ const modelOptions = computed(() =>
 </script>
 
 <template>
-  <USelectMenu
-    v-model="model"
-    :items="modelOptions"
-    value-attribute="value"
-    option-attribute="label"
-    variant="ghost"
-    class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
-    :ui="{
+  <USelectMenu v-model="model" value-key="value" label-key="label" :items="modelOptions" variant="ghost"
+    class="hover:bg-default focus:bg-default data-[state=open]:bg-default" :ui="{
       trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
-    }"
-  >
+    }">
     <template #item-label="{ item }">
       <UTooltip :text="item.label" arrow :content="{ side: 'left' }">
         <span class="text-xs text-default-foreground truncate">
